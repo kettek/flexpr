@@ -91,10 +91,10 @@ void TooltipX11::render() {
 
   // layered border
   XSetForeground(m_display, m_gc, m_black_pixel);
-  XDrawRectangle(m_display, m_window, m_gc, 0, 0, m_width, m_height);
-  XDrawRectangle(m_display, m_window, m_gc, 2, 2, m_width-4, m_height-4);
+  XDrawRectangle(m_display, m_window, m_gc, 0, 0, m_width-1, m_height-1);
+  XDrawRectangle(m_display, m_window, m_gc, 2, 2, m_width-5, m_height-5);
 
-  XDrawString(m_display, m_window, m_gc, 4, m_height-3, m_text.c_str(), m_text.length());
+  XDrawString(m_display, m_window, m_gc, 4, m_height-4, m_text.c_str(), m_text.length());
 }
 
 void TooltipX11::repositionSelf() {
@@ -120,5 +120,5 @@ void TooltipX11::resizeSelf() {
   XTextExtents(m_font, m_text.c_str(), m_text.length(),
       &direction, &ascent, &descent, &overall);
 
-  resize(overall.width+6, ascent+5);
+  resize(overall.width+7, ascent+6);
 }
