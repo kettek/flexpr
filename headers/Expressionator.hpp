@@ -5,7 +5,7 @@
 namespace Expressionator {
   struct Token {
     char t = 0;
-    int v;
+    long long v;
     Token() {}
     Token(char type, int value) : t(type), v(value) { }
   };
@@ -25,11 +25,11 @@ namespace Expressionator {
       Token peek();
   };
   
-  int doOperation(Token token, Token a, Token b);
+  long long doOperation(Token token, Token a, Token b);
   int getTokenPrecedence(Token token);
   bool compareTokenPrecedence(Token a, Token b);
   TokenStack infixToPostfix(std::string text);
   std::string evaluateInfix(std::string text);
 
-  int rollDice(int count, int pips);
+  long long rollDice(int count, int pips);
 }

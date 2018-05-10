@@ -34,8 +34,8 @@ namespace Expressionator {
     return stack.back();
   }
 
-  int rollDice(int count, int pips) {
-    int value = 0;
+  long long rollDice(int count, int pips) {
+    long long value = 0;
     srand(time(NULL));
     if (count == 0 || pips == 0) return value;
     for (int i = 0; i < count; i++) {
@@ -44,7 +44,7 @@ namespace Expressionator {
     return value;
   }
   
-  int doOperation(Token token, Token a, Token b) {
+  long long doOperation(Token token, Token a, Token b) {
     switch (token.v) {
       case '+':
         return a.v + b.v;
@@ -109,7 +109,11 @@ namespace Expressionator {
               break;
             }
           }
-          output.push(Token(NUMBER, std::stoi(number, nullptr)));
+          try {
+            output.push(Token(NUMBER, std::stoll(number, nullptr)));
+          } catch (...) {
+            output.push(Token(NUMBER, 0));
+          }
           number = "";
         break;
         // operators
