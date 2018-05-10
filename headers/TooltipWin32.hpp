@@ -12,13 +12,9 @@ class TooltipWin32 : public Tooltip {
     void resize(int width, int height);
     void setText(const std::string text);
     void render();
-    void repositionSelf();
-    void resizeSelf();
     void show();
     void hide();
   private:
-		static LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param);
-    LRESULT CALLBACK windowMessageProcessor(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param);
-    WNDCLASS  m_window_class = { };
+    friend class CoreWin32;
     HWND      m_window_handle;
 };

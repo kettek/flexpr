@@ -1,5 +1,6 @@
 #include "TooltipWin32.hpp"
 #include <iostream>
+#include <WinStrings.hpp>
 
 TooltipWin32::TooltipWin32() : Tooltip() {
 
@@ -9,27 +10,17 @@ TooltipWin32::~TooltipWin32() {
 }
 
 int TooltipWin32::setup() {
-  const wchar_t CLASS_NAME[] = L"TooltipWin32 Class";
-
-	m_window_class.lpfnWndProc    = WndProc;
-  m_window_class.hInstance      = GetModuleHandle(0);
-  m_window_class.lpszClassName  = CLASS_NAME;
-
-  if (!RegisterClass(&m_window_class)) {
-    MessageBox(NULL, L"Window Registration Failed!", L"Error!",
-        MB_ICONEXCLAMATION | MB_OK);
-    return 1;
-  }
+  resize(128, 24);
 
   m_window_handle = CreateWindowEx(
       WS_EX_TOPMOST,                // Optional window styles
-      CLASS_NAME,                   // Window class
-      L"Text",                      // Window text
-      WS_POPUP,                     // Window style
+      L"EDIT",                      // Window class
+      L"",                          // Window text
+      WS_DLGFRAME|WS_POPUP,                     // Window style
       m_x, m_y, m_width, m_height,  // Size and position
       NULL,                         // Parent window
       NULL,                         // Menu
-      m_window_class.hInstance,     // Instance handle
+      NULL,                         // Instance handle
       NULL                          // Additional application data
   );     
 
@@ -41,7 +32,7 @@ int TooltipWin32::setup() {
 
   SetWindowLongPtr(m_window_handle, GWLP_USERDATA, (LONG)this);
 
-  show();
+  //SetFocus(GetDlgItem(m_window_handle, 0));
 
   return 0;
 }
@@ -60,14 +51,17 @@ void TooltipWin32::show() {
   repositionSelf();
 
   ShowWindow(m_window_handle, SW_SHOW);
+  UpdateWindow(m_window_handle);
 }
 void TooltipWin32::hide() {
   // Hide
   ShowWindow(m_window_handle, SW_HIDE);
+  SetWindowText(m_window_handle, TEXT(""));
 }
 
 void TooltipWin32::setText(const std::string text) {
   Tooltip::setText(text);
+  SetWindowText(m_window_handle, s2ws(text).c_str());
   resizeSelf();
 }
 
@@ -76,43 +70,26 @@ void TooltipWin32::move(int x, int y) {
   MoveWindow(m_window_handle, m_x, m_y, m_width, m_height, FALSE);
 }
 void TooltipWin32::resize(int width, int height) {
+  if (width < 64) width = 64;
+  if (height < 24) height = 24;
   Tooltip::resize(width, height);
   MoveWindow(m_window_handle, m_x, m_y, m_width, m_height, TRUE); // render() called via WM_PAINT here
 }
 
 void TooltipWin32::render() {
-  PAINTSTRUCT ps;
-  HDC hdc = BeginPaint(m_window_handle, &ps);
+  SetForegroundWindow(m_window_handle);
+  HDC m_hdc = GetDC(m_window_handle);
+  SIZE size;
 
-  FillRect(hdc, &ps.rcPaint, (HBRUSH) (COLOR_WINDOW+1));
-
-  EndPaint(m_window_handle, &ps);
-}
-
-void TooltipWin32::repositionSelf() {
-  // call move(x,y)
-}
-
-void TooltipWin32::resizeSelf() {
-  // call resize(w, h)
-}
-
-LRESULT CALLBACK TooltipWin32::WndProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
-  TooltipWin32* tooltip = (TooltipWin32*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-  if (tooltip) {
-  	return tooltip->windowMessageProcessor(hwnd, msg, w_param, l_param);
-  }
-  return DefWindowProc(hwnd, msg, w_param, l_param);
-}
-
-LRESULT CALLBACK TooltipWin32::windowMessageProcessor(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
-  switch (msg) {
-    case WM_DESTROY:
-      PostQuitMessage(0);
-      return 0;
-    case WM_PAINT:
-      render();
-      return 0;
-  }
-  return DefWindowProc(hwnd, msg, w_param, l_param);
+  int len = GetWindowTextLength(m_window_handle);
+  #ifdef UNICODE
+  std::wstring buffer(len+1, '\0');
+  GetWindowText(m_window_handle, (LPWSTR)buffer.c_str(), len+1);
+  GetTextExtentPoint32(m_hdc, (LPWSTR)buffer.c_str(), len+1, &size);
+  #else
+  std::string buffer(len+1, '\0');
+  GetWindowText(m_window_handle, (LPSTR)buffer.c_str(), len+1);
+  GetTextExtentPoint32(m_hdc, s2ws(buffer).c_str(), len+1, &size);
+  #endif
+  resize(size.cx+16, size.cy);
 }

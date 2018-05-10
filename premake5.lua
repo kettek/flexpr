@@ -3,7 +3,7 @@ workspace "flexpr"
   configurations { "Debug", "Release" }
 
 project "flexpr"
-  kind "ConsoleApp"
+  kind "WindowedApp"
   language "C++"
   targetdir "%{cfg.buildcfg}"
   location ("build/" .. _ACTION)
@@ -32,6 +32,6 @@ project "flexpr"
       removefiles { "source/X11/CoreXInput2.cpp" }
       removelinks { "xi" }
   configuration { "win32" }
-    defines { "USE_WIN32" }
+    defines { "USE_WIN32", "UNICODE" }
     files { "source/Win32/*.cpp" }
     entrypoint "mainCRTStartup"

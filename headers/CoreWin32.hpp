@@ -9,6 +9,7 @@ class CoreWin32 : public Core {
     bool hotkeyLoop();
     bool interceptLoop();
   protected:
+    HWND          m_focused_window; // Window we wish to paste to
     HWND          m_window_handle; // Hidden window
     WNDCLASS      m_window_class = { };
     TooltipWin32  m_tooltip;
