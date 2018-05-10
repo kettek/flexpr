@@ -74,8 +74,6 @@ void TooltipX11::move(int x, int y) {
   XMoveWindow(m_display, m_window, m_x, m_y+m_height);
 }
 void TooltipX11::resize(int width, int height) {
-  if (width < 8) width = 8;
-  if (height < 8) height = 8;
   Tooltip::resize(width, height);
   XResizeWindow(m_display, m_window, m_width, m_height);
   render();

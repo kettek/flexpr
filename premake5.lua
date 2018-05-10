@@ -24,8 +24,14 @@ project "flexpr"
     description = "Disable XInput2 support"
   }
   configuration { "linux" }
-    links { "X11", "Xi" }
+    defines { "USE_X11", "USE_XINPUT2" }
     files { "source/X11/*.cpp" }
+    links { "X11", "Xi" }
     configuration "without-xinput2"
-      removelinks { "xi" }
+      removedefines { "USE_XINPUT2" }
       removefiles { "source/X11/CoreXInput2.cpp" }
+      removelinks { "xi" }
+  configuration { "win32" }
+    defines { "USE_WIN32" }
+    files { "source/Win32/*.cpp" }
+    entrypoint "mainCRTStartup"

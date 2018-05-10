@@ -1,11 +1,26 @@
-#ifdef __linux__
+#if defined( USE_X11 )
+#if defined ( USE_XINPUT2 )
+#include "CoreXinput2.hpp"
+#else
 #include "CoreX11.hpp"
 #endif
+#elif defined ( USE_WIN32 )
+#include "CoreWin32.hpp"
+#endif
+
+#include <iostream>
 
 int main(int argc, char *argv[]) {
-#ifdef __linux__
+#if defined ( USE_X11 )
+#if defined ( USE_XINPUT2 )
+  CoreXinput2 core;
+#else
   CoreX11 core;
 #endif
+#elif defined ( USE_WIN32 )
+  CoreWin32 core;
+#endif
+  std::cout << "dang" << std::endl;
 
   while (1) {
     if (core.hotkeyLoop()) break;

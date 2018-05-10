@@ -18,6 +18,8 @@ void Tooltip::move(int x, int y) {
   m_y = y;
 }
 void Tooltip::resize(int width, int height) {
+  if (width < 8) width = 8;
+  if (height < 8) height = 8;
   m_width   = width;
   m_height  = height;
 }

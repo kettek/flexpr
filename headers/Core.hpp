@@ -3,6 +3,6 @@ class Core {
 //    Core(){};
 //    ~Core(){};
   private:
-    virtual bool hotkeyLoop(){};
-    virtual bool interceptLoop(){};
+    virtual bool hotkeyLoop() { return false; };
+    virtual bool interceptLoop() { return false; };
 };
