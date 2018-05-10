@@ -24,7 +24,7 @@ CoreX11::~CoreX11() {
 }
 
 bool CoreX11::interceptLoop() {
-  long        event_mask  = KeyPressMask | FocusChangeMask | PointerMotionMask | ExposureMask;
+  long        event_mask  = KeyPressMask | FocusChangeMask | PointerMotionMask;
   KeySym      escape      = XKeysymToKeycode(m_display, XK_Escape);
   std::string calc_string;
   Window      focused_window;
@@ -34,10 +34,13 @@ bool CoreX11::interceptLoop() {
   // Attach to focused window
   XGetInputFocus(m_display, &focused_window, &revert);
   XSelectInput(m_display, focused_window, event_mask);
+  // Listen for Exposure events from our tooltip
+  XSelectInput(m_display, m_tooltip.m_window, ExposureMask);
+  // Steal all keypresses
   XGrabKeyboard(m_display, focused_window, False, GrabModeAsync, GrabModeAsync, CurrentTime);
 
-  m_tooltip.repositionSelf();
   m_tooltip.show();
+  m_tooltip.repositionSelf();
 
   while (1) {
     XNextEvent(m_display, &event);
@@ -96,6 +99,9 @@ bool CoreX11::interceptLoop() {
   XUngrabKeyboard(m_display, CurrentTime);
   XSelectInput(m_display, focused_window, 0);
 
+  // Stop selecting tooltip
+  XSelectInput(m_display, m_tooltip.m_window, 0);
+
   m_tooltip.hide();
   return false;
 }
@@ -103,7 +109,7 @@ bool CoreX11::interceptLoop() {
 bool CoreX11::hotkeyLoop() {
   int           hotkey_keycode    = XKeysymToKeycode(m_display, XK_C);
   unsigned int  hotkey_modifiers  = Mod1Mask | ShiftMask;
-  
+
   XGrabKey(m_display, hotkey_keycode, hotkey_modifiers, m_root_window, True, GrabModeAsync, GrabModeAsync);
   XSelectInput(m_display, m_root_window, KeyReleaseMask);
 

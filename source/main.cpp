@@ -1,6 +1,6 @@
 #if defined( USE_X11 )
 #if defined ( USE_XINPUT2 )
-#include "CoreXinput2.hpp"
+#include "CoreXInput2.hpp"
 #else
 #include "CoreX11.hpp"
 #endif
@@ -13,7 +13,7 @@
 int main(int argc, char *argv[]) {
 #if defined ( USE_X11 )
 #if defined ( USE_XINPUT2 )
-  CoreXinput2 core;
+  CoreXInput2 core;
 #else
   CoreX11 core;
 #endif

@@ -17,6 +17,7 @@ class TooltipX11 : public Tooltip {
     void show();
     void hide();
   private:
+    friend class CoreX11;
     Display*      m_display;
     Window        m_window;
     int           m_screen;

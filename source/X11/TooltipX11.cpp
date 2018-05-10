@@ -15,11 +15,14 @@ int TooltipX11::setup(Display* display) {
   m_screen = DefaultScreen(m_display);
 
   // Create window
+  // Setting the backing-store to WhenMapped or Always fixes redraw() corruptions
+  XSetWindowAttributes attrs;
+  attrs.backing_store = WhenMapped;
   m_window = XCreateWindow(m_display, RootWindow(m_display, m_screen),
       m_x, m_y, m_width, m_height,
       0, DefaultDepth(m_display, m_screen), InputOutput,
       CopyFromParent,
-      0, NULL);
+      CWBackingStore, &attrs);
 
   // Setup GC
   m_gc          = XCreateGC(m_display, m_window, 0, 0);
@@ -55,12 +58,13 @@ void TooltipX11::show() {
   Atom wm_state_value   = XInternAtom(m_display, "_NET_WM_STATE_ABOVE", False);
   XChangeProperty(m_display, m_window, wm_state, XA_ATOM, 32, PropModeReplace, (unsigned char *) &wm_state_value, 1);
 
-  render();
+  setText("");
 
   XMapWindow(m_display, m_window);
   repositionSelf();
 }
 void TooltipX11::hide() {
+  setText("");
   XUnmapWindow(m_display, m_window);
 }
 
@@ -70,13 +74,14 @@ void TooltipX11::setText(const std::string text) {
 }
 
 void TooltipX11::move(int x, int y) {
+  if (x == m_x && y == m_y) return;
   Tooltip::move(x, y);
-  XMoveWindow(m_display, m_window, m_x, m_y+m_height);
+  XMoveWindow(m_display, m_window, m_x+16, m_y+16);
 }
 void TooltipX11::resize(int width, int height) {
+  if (width == m_width && height == m_height) return;
   Tooltip::resize(width, height);
   XResizeWindow(m_display, m_window, m_width, m_height);
-  render();
 }
 
 void TooltipX11::render() {
@@ -84,8 +89,12 @@ void TooltipX11::render() {
   XSetForeground(m_display, m_gc, m_white_pixel);
   XFillRectangle(m_display, m_window, m_gc, 0, 0, m_width, m_height);
 
+  // layered border
   XSetForeground(m_display, m_gc, m_black_pixel);
-  XDrawString(m_display, m_window, m_gc, 0, m_height, m_text.c_str(), m_text.length());
+  XDrawRectangle(m_display, m_window, m_gc, 0, 0, m_width, m_height);
+  XDrawRectangle(m_display, m_window, m_gc, 2, 2, m_width-4, m_height-4);
+
+  XDrawString(m_display, m_window, m_gc, 4, m_height-3, m_text.c_str(), m_text.length());
 }
 
 void TooltipX11::repositionSelf() {
@@ -111,5 +120,5 @@ void TooltipX11::resizeSelf() {
   XTextExtents(m_font, m_text.c_str(), m_text.length(),
       &direction, &ascent, &descent, &overall);
 
-  resize(overall.width, ascent+2);
+  resize(overall.width+6, ascent+5);
 }
