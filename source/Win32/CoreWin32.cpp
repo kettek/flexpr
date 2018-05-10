@@ -8,7 +8,7 @@ CoreWin32::CoreWin32() {
   //
   const wchar_t CLASS_NAME[] = L"CoreWin32 Class";
 
-	m_window_class.lpfnWndProc    = WndProc;
+	m_window_class.lpfnWndProc    = DefWindowProc;
   m_window_class.hInstance      = GetModuleHandle(0);
   m_window_class.lpszClassName  = CLASS_NAME;
 
@@ -50,14 +50,11 @@ bool CoreWin32::interceptLoop() {
   RAWINPUTDEVICE r_id[1];
   r_id[0].usUsagePage = 0x01;
   r_id[0].usUsage = 0x02;
-  //r_id[0].dwFlags = RIDEV_NOLEGACY;
   r_id[0].dwFlags = RIDEV_INPUTSINK;
-  // NOTE: weird stuff with needed m_window_handle here(and the accompanying Proc stuff), but actually doing the processing below.
   r_id[0].hwndTarget = m_window_handle;
   if (RegisterRawInputDevices(r_id, 1, sizeof(r_id[0])) == FALSE) {
     MessageBox(NULL, L"Could not register for mouse events!", L"Error!",
         MB_ICONEXCLAMATION | MB_OK);
-    std::cerr << "FUUU " << std::endl;
   }
 
   MSG msg = { 0 };
@@ -118,21 +115,4 @@ bool CoreWin32::hotkeyLoop() {
   UnregisterHotKey(NULL, 1);
 
   return false;
-}
-
-LRESULT CALLBACK CoreWin32::WndProc(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
-  CoreWin32* core = (CoreWin32*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
-  if (core) {
-  	return core->windowMessageProcessor(hwnd, msg, w_param, l_param);
-  }
-  return DefWindowProc(hwnd, msg, w_param, l_param);
-}
-
-LRESULT CALLBACK CoreWin32::windowMessageProcessor(HWND hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
-  switch (msg) {
-    case WM_DESTROY:
-      PostQuitMessage(0);
-      return 0;
-  }
-  return DefWindowProc(hwnd, msg, w_param, l_param);
 }
