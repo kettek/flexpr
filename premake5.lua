@@ -33,5 +33,6 @@ project "flexpr"
       removelinks { "xi" }
   configuration { "win32" }
     defines { "USE_WIN32", "UNICODE" }
+    links { "Comctl32" }
     files { "source/Win32/*.cpp" }
     entrypoint "mainCRTStartup"
