@@ -169,7 +169,7 @@ bool CoreWin32::interceptLoop() {
 }
 
 bool CoreWin32::hotkeyLoop() {
-  if (!RegisterHotKey(NULL, 1, MOD_ALT | MOD_SHIFT | MOD_NOREPEAT, 0x42)) {
+  if (!RegisterHotKey(NULL, 1, MOD_ALT | MOD_SHIFT | MOD_NOREPEAT, 0x43)) {
     std::cerr << "Failed to register hotkey" << std::endl;
     return true;
   }
