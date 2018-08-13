@@ -13,15 +13,15 @@ int TooltipWin32::setup() {
   resize(128, 24);
 
   m_window_handle = CreateWindowEx(
-      WS_EX_TOPMOST,                // Optional window styles
-      L"EDIT",                      // Window class
-      L"",                          // Window text
-      WS_DLGFRAME|WS_POPUP,                     // Window style
-      m_x, m_y, m_width, m_height,  // Size and position
-      NULL,                         // Parent window
-      NULL,                         // Menu
-      NULL,                         // Instance handle
-      NULL                          // Additional application data
+      WS_EX_TOPMOST|WS_EX_TOOLWINDOW, // Optional window styles
+      L"EDIT",                        // Window class
+      L"",                            // Window text
+      WS_DLGFRAME|WS_POPUP,           // Window style
+      m_x, m_y, m_width, m_height,    // Size and position
+      NULL,                           // Parent window
+      NULL,                           // Menu
+      NULL,                           // Instance handle
+      NULL                            // Additional application data
   );     
 
   if (m_window_handle == NULL) {

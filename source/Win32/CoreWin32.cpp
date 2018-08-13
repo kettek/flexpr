@@ -17,7 +17,7 @@ CoreWin32::CoreWin32() {
   //
   const wchar_t CLASS_NAME[] = L"CoreWin32 Class";
 
-	m_window_class.lpfnWndProc    = CoreWin32::handleWindowProcedure;
+  m_window_class.lpfnWndProc    = CoreWin32::handleWindowProcedure;
   m_window_class.hInstance      = GetModuleHandle(0);
   m_window_class.lpszClassName  = CLASS_NAME;
 
@@ -169,7 +169,7 @@ bool CoreWin32::interceptLoop() {
 }
 
 bool CoreWin32::hotkeyLoop() {
-  if (!RegisterHotKey(NULL, 1, MOD_ALT | MOD_SHIFT | MOD_NOREPEAT, 0x43)) {
+  if (!RegisterHotKey(NULL, 1, MOD_NOREPEAT, VK_LAUNCH_APP2)) {
     std::cerr << "Failed to register hotkey" << std::endl;
     return true;
   }
