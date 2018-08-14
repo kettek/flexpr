@@ -21,6 +21,9 @@ int main(int argc, char *argv[]) {
   CoreWin32 core;
 #endif
   std::cout << "dang" << std::endl;
+  
+  core.getConfigurationPath();
+  core.loadConfiguration();
 
   while (1) {
     if (core.hotkeyLoop()) break;

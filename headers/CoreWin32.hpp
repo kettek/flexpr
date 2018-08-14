@@ -1,6 +1,7 @@
 #pragma once
 #include "Core.hpp"
 #include "TooltipWin32.hpp"
+#include <unordered_map>
 
 class CoreWin32 : public Core {
   public:
@@ -12,6 +13,10 @@ class CoreWin32 : public Core {
     bool hideTrayIcon();
     static LRESULT CALLBACK handleWindowProcedure(HWND hwnd, UINT u_msg, WPARAM w_param, LPARAM l_param);
     bool handleTrayIconEvent(WPARAM w_param, LPARAM l_param);
+    void getConfigurationPath();
+    void loadConfiguration();
+    static std::unordered_map<std::string, size_t> m_keymap;
+    static std::unordered_map<std::string, size_t> m_keymap_modifiers;
   protected:
     HWND            m_focused_window; // Window we wish to paste to
     HWND            m_window_handle; // Hidden window
@@ -20,5 +25,7 @@ class CoreWin32 : public Core {
     HICON           m_icon;
     HMENU           m_menu;
     NOTIFYICONDATA  m_nid;
+    UINT            m_hotkey_modifiers = 0;
+    UINT            m_hotkey_vks = 0;
 };
 

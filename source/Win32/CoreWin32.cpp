@@ -64,6 +64,100 @@ CoreWin32::~CoreWin32() {
   m_tooltip.cleanup();
 }
 
+void CoreWin32::getConfigurationPath() {
+  wchar_t buffer[MAX_PATH];
+  GetModuleFileName(NULL, buffer, MAX_PATH);
+  // conver wchar_t to char*
+  size_t wide_size = wcslen(buffer) + 1;
+  size_t converted_chars = 0;
+  const size_t new_size = wide_size*2;
+  char* c_string = new char[new_size];
+  wcstombs_s(&converted_chars, c_string, new_size, buffer, _TRUNCATE);
+  
+  m_config_path = c_string;
+  // Remove exe name
+  std::size_t found = m_config_path.find_last_of("\\");
+  m_config_path = m_config_path.substr(0, found);
+  m_config_path += "\\flexpr.cfg";
+  
+  delete[] c_string;
+}
+
+void CoreWin32::loadConfiguration() {
+  Core::loadConfiguration();
+  
+  // Get optimized hotkey
+  size_t pos = 0;
+  std::string hotkey_str = m_config["hotkey"];
+  std::string token;
+  while ((pos = hotkey_str.find("+")) != std::string::npos) {
+    token = hotkey_str.substr(0, pos);
+    auto it = m_keymap_modifiers.find(token);
+    if (it != m_keymap_modifiers.end()) {
+      m_hotkey_modifiers = m_hotkey_modifiers | it->second;
+    } else {
+      it = m_keymap.find(token);
+      if (it != m_keymap.end()) {
+        m_hotkey_vks = m_hotkey_vks | it->second;
+      }
+    }
+	  hotkey_str.erase(0, pos + 1);
+  }
+  auto it = m_keymap_modifiers.find(hotkey_str);
+  if (it != m_keymap_modifiers.end()) {
+    m_hotkey_modifiers = m_hotkey_modifiers | it->second;
+  } else {
+    it = m_keymap.find(hotkey_str);
+    if (it != m_keymap.end()) {
+      m_hotkey_vks = m_hotkey_vks | it->second;
+    }
+  }
+}
+
+std::unordered_map<std::string, size_t> CoreWin32::m_keymap = {
+  // Modifiers
+  {"Ctrl", VK_CONTROL}, {"LCtrl", VK_LCONTROL}, {"RCtrl", VK_RCONTROL},
+  {"Alt", VK_MENU}, {"LAlt", VK_LMENU}, {"RAlt", VK_RMENU},
+  {"Menu", VK_MENU}, {"LMenu", VK_LMENU}, {"RMenu", VK_RMENU},
+  {"Shift", VK_SHIFT}, {"LShift", VK_LSHIFT}, {"RShift", VK_RSHIFT},
+  // Odd
+  {"Meta", VK_LWIN}, {"MetaL", VK_LWIN}, {"MetaR", VK_RWIN},
+  {"Apps", VK_APPS},
+  {"Mail", VK_LAUNCH_MAIL}, {"App1", VK_LAUNCH_APP1}, {"App2", VK_LAUNCH_APP2},
+  // Numbers
+  {"0", 0x30}, {"1", 0x31}, {"2", 0x32}, {"3", 0x33}, {"4", 0x34}, {"5", 0x35}, {"6", 0x36},
+  {"8", 0x37}, {"9", 0x38}, 
+  // Alphabet
+  {"A", 0x41}, {"B", 0x42}, {"C", 0x43}, {"D", 0x44}, {"E", 0x45}, {"F", 0x46}, {"G", 0x47},
+  {"H", 0x48}, {"I", 0x49}, {"J", 0x4A}, {"K", 0x4B}, {"L", 0x4C}, {"M", 0x4D}, {"N", 0x4E},
+  {"O", 0x4F}, {"P", 0x50}, {"Q", 0x51}, {"R", 0x52}, {"S", 0x53}, {"T", 0x54}, {"U", 0x55},
+  {"V", 0x56}, {"W", 0x57}, {"X", 0x58}, {"Y", 0x59}, {"Z", 0x5A},
+  // Other
+  {"Backspace", VK_BACK}, {"Tab", VK_TAB}, {"Clear", VK_CLEAR}, {"Return", VK_RETURN},
+  {"Pause", VK_PAUSE}, {"CapsLock", VK_CAPITAL}, {"Esc", VK_ESCAPE}, {"Space", VK_SPACE},
+  {"PageUp", VK_PRIOR}, {"PageDown", VK_NEXT}, {"End", VK_END}, {"Home", VK_HOME},
+  {"Left", VK_LEFT}, {"Right", VK_RIGHT}, {"Down", VK_DOWN}, {"Up", VK_UP},
+  {"Select", VK_SELECT}, {"Print", VK_PRINT}, {"Execute", VK_EXECUTE},
+  {"PrintScreen", VK_SNAPSHOT}, {"Insert", VK_INSERT}, {"Delete", VK_DELETE},
+  {"Help", VK_HELP}, {"NumLock", VK_NUMLOCK}, {"ScrollLock", VK_SCROLL},
+  {"Num0", VK_NUMPAD0}, {"Num1", VK_NUMPAD1}, {"Num2", VK_NUMPAD2},
+  {"Num3", VK_NUMPAD3}, {"Num4", VK_NUMPAD4}, {"Num5", VK_NUMPAD5},
+  {"Num6", VK_NUMPAD6}, {"Num7", VK_NUMPAD7}, {"Num8", VK_NUMPAD8},
+  {"Num9", VK_NUMPAD9},
+  {"Plus", VK_ADD}, {"Minus", VK_SUBTRACT}, {"Multiply", VK_MULTIPLY},
+  {"Divide", VK_DIVIDE},
+  // Function Keys
+  {"F1", VK_F1}, {"F2", VK_F2}, {"F3", VK_F3}, {"F4", VK_F4}, {"F5", VK_F5},
+  {"F6", VK_F6}, {"F7", VK_F7}, {"F8", VK_F8}, {"F9", VK_F9}, {"F10", VK_F10},
+  {"F11", VK_F11}, {"F12", VK_F12}, {"F13", VK_F13}, {"F14", VK_F14}, {"F15", VK_F15},
+  {"F16", VK_F16}, {"F17", VK_F17}, {"F18", VK_F18}, {"F19", VK_F19}, {"F20", VK_F20},
+  {"F21", VK_F21}, {"F22", VK_F22}, {"F23", VK_F23}, {"F24", VK_F24},
+};
+
+std::unordered_map<std::string, size_t> CoreWin32::m_keymap_modifiers = {
+  {"Alt", MOD_ALT}, {"Ctrl", MOD_CONTROL}, {"Shift", MOD_SHIFT}, {"Meta", MOD_WIN}
+};
+
 bool CoreWin32::interceptLoop() {
   POINT p;
   if (GetCursorPos(&p)) {
@@ -169,7 +263,7 @@ bool CoreWin32::interceptLoop() {
 }
 
 bool CoreWin32::hotkeyLoop() {
-  if (!RegisterHotKey(NULL, 1, MOD_NOREPEAT, VK_LAUNCH_APP2)) {
+  if (!RegisterHotKey(NULL, 1, MOD_NOREPEAT | m_hotkey_modifiers, m_hotkey_vks)) {
     std::cerr << "Failed to register hotkey" << std::endl;
     return true;
   }
