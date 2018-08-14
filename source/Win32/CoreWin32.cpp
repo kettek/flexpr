@@ -133,6 +133,7 @@ void CoreWin32::loadConfiguration() {
 }
 
 bool CoreWin32::interceptLoop() {
+
   POINT p;
   if (GetCursorPos(&p)) {
     m_focused_window = WindowFromPoint(p);
@@ -149,6 +150,11 @@ bool CoreWin32::interceptLoop() {
   if (RegisterRawInputDevices(r_id, 1, sizeof(r_id[0])) == FALSE) {
     MessageBox(NULL, L"Could not register for mouse events!", L"Error!",
         MB_ICONEXCLAMATION | MB_OK);
+  }
+  // I suppose we'll re-register the hotkey here to allow canceling -- shouldn't unregister it ever, I think.
+  if (!RegisterHotKey(NULL, 1, MOD_NOREPEAT | m_hotkey_modifiers, m_hotkey_vks)) {
+    std::cerr << "Failed to register hotkey" << std::endl;
+    return true;
   }
 
   MSG msg = { 0 };
@@ -222,13 +228,19 @@ bool CoreWin32::interceptLoop() {
           keystrokes_sent = SendInput( ( UINT )keystrokes_to_send, keystroke, sizeof( *keystroke ) );
           delete [] keystroke;
           m_tooltip.hide();
+          UnregisterHotKey(NULL, 1);
           return false;
         }
       } else if (msg.wParam == VK_ESCAPE) {
+        UnregisterHotKey(NULL, 1);
         m_tooltip.hide();
         return false;
       }
       m_tooltip.render();
+    } else if (msg.message == WM_HOTKEY) {
+      UnregisterHotKey(NULL, 1);
+      m_tooltip.hide();
+      return false;
     }
     TranslateMessage(&msg);
     DispatchMessage(&msg);
