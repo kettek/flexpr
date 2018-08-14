@@ -9,6 +9,8 @@ class CoreX11 : public Core {
     ~CoreX11();
     bool hotkeyLoop();
     bool interceptLoop();
+    void getConfigurationPath();
+    void loadConfiguration();
   protected:
     Display*    m_display;
     Window      m_root_window;

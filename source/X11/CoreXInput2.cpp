@@ -97,10 +97,10 @@ bool CoreXInput2::interceptLoop() {
 }
 
 bool CoreXInput2::hotkeyLoop() {
-  int           hotkey_keycode    = XKeysymToKeycode(m_display, XK_C);
-  unsigned int  hotkey_modifiers  = Mod1Mask | ShiftMask;
+  // FIXME: We allow multiple keys to conf, but this code only supports one.
+  int           hotkey_keycode    = XKeysymToKeycode(m_display, m_hotkey_vks);
   
-  XGrabKey(m_display, hotkey_keycode, hotkey_modifiers, m_root_window, True, GrabModeAsync, GrabModeAsync);
+  XGrabKey(m_display, hotkey_keycode, m_hotkey_modifiers, m_root_window, True, GrabModeAsync, GrabModeAsync);
   XSelectInput(m_display, m_root_window, KeyReleaseMask);
 
   XEvent      event;
@@ -113,6 +113,6 @@ bool CoreXInput2::hotkeyLoop() {
   }
 
   XSelectInput(m_display, m_root_window, 0);
-  XUngrabKey(m_display, hotkey_keycode, hotkey_modifiers, m_root_window);
+  XUngrabKey(m_display, hotkey_keycode, m_hotkey_modifiers, m_root_window);
   return false;
 }

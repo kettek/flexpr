@@ -85,33 +85,6 @@ void CoreWin32::getConfigurationPath() {
 
 void CoreWin32::loadConfiguration() {
   Core::loadConfiguration();
-  
-  // Get optimized hotkey
-  size_t pos = 0;
-  std::string hotkey_str = m_config["hotkey"];
-  std::string token;
-  while ((pos = hotkey_str.find("+")) != std::string::npos) {
-    token = hotkey_str.substr(0, pos);
-    auto it = m_keymap_modifiers.find(token);
-    if (it != m_keymap_modifiers.end()) {
-      m_hotkey_modifiers = m_hotkey_modifiers | it->second;
-    } else {
-      it = m_keymap.find(token);
-      if (it != m_keymap.end()) {
-        m_hotkey_vks = m_hotkey_vks | it->second;
-      }
-    }
-	  hotkey_str.erase(0, pos + 1);
-  }
-  auto it = m_keymap_modifiers.find(hotkey_str);
-  if (it != m_keymap_modifiers.end()) {
-    m_hotkey_modifiers = m_hotkey_modifiers | it->second;
-  } else {
-    it = m_keymap.find(hotkey_str);
-    if (it != m_keymap.end()) {
-      m_hotkey_vks = m_hotkey_vks | it->second;
-    }
-  }
 }
 
 std::unordered_map<std::string, size_t> CoreWin32::m_keymap = {
@@ -121,7 +94,7 @@ std::unordered_map<std::string, size_t> CoreWin32::m_keymap = {
   {"Menu", VK_MENU}, {"LMenu", VK_LMENU}, {"RMenu", VK_RMENU},
   {"Shift", VK_SHIFT}, {"LShift", VK_LSHIFT}, {"RShift", VK_RSHIFT},
   // Odd
-  {"Meta", VK_LWIN}, {"MetaL", VK_LWIN}, {"MetaR", VK_RWIN},
+  {"Super", VK_LWIN}, {"SuperL", VK_LWIN}, {"SuperR", VK_RWIN},
   {"Apps", VK_APPS},
   {"Mail", VK_LAUNCH_MAIL}, {"App1", VK_LAUNCH_APP1}, {"App2", VK_LAUNCH_APP2},
   // Numbers

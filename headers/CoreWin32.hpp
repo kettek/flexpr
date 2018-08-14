@@ -15,8 +15,6 @@ class CoreWin32 : public Core {
     bool handleTrayIconEvent(WPARAM w_param, LPARAM l_param);
     void getConfigurationPath();
     void loadConfiguration();
-    static std::unordered_map<std::string, size_t> m_keymap;
-    static std::unordered_map<std::string, size_t> m_keymap_modifiers;
   protected:
     HWND            m_focused_window; // Window we wish to paste to
     HWND            m_window_handle; // Hidden window
