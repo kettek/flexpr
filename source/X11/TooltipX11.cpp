@@ -18,11 +18,12 @@ int TooltipX11::setup(Display* display) {
   // Setting the backing-store to WhenMapped or Always fixes redraw() corruptions
   XSetWindowAttributes attrs;
   attrs.backing_store = WhenMapped;
+  attrs.override_redirect = True;
   m_window = XCreateWindow(m_display, RootWindow(m_display, m_screen),
       m_x, m_y, m_width, m_height,
       0, DefaultDepth(m_display, m_screen), InputOutput,
       CopyFromParent,
-      CWBackingStore, &attrs);
+      CWBackingStore | CWOverrideRedirect, &attrs);
 
   // Setup GC
   m_gc          = XCreateGC(m_display, m_window, 0, 0);
