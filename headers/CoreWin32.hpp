@@ -23,7 +23,5 @@ class CoreWin32 : public Core {
     HICON           m_icon;
     HMENU           m_menu;
     NOTIFYICONDATA  m_nid;
-    UINT            m_hotkey_modifiers = 0;
-    UINT            m_hotkey_vks = 0;
 };
 
